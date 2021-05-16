@@ -32,9 +32,11 @@ void test_insert_last(void) {
 	}
 
 	// Δοκιμή ότι μετά τα resizes τα στοιχεία είναι ακόμα προσπελάσιμα
-	for (int i = 0; i < 1000; i++)
+	for (int i = 0; i < 1000; i++){
 		TEST_ASSERT(vector_get_at(vec, i) == &array[i]);
-
+	}
+		
+		
 	vector_destroy(vec);
 	free(array);
 }
@@ -54,7 +56,6 @@ void test_remove_last(void) {
 		vector_remove_last(vec);
 		TEST_ASSERT(vector_size(vec) == i);
 	}
-
 	vector_destroy(vec);
 	free(array);
 }
@@ -144,7 +145,7 @@ void test_destroy(void) {
 	vector_set_at(vec, 0, malloc(1));
 	vector_insert_last(vec, malloc(1));
 	vector_remove_last(vec);
-
+	
 	vector_destroy(vec);
 }
 

@@ -22,8 +22,8 @@ struct set {
 struct set_node {
 	SetNode left, right;		// Παιδιά
 	Pointer value;
+	int left_child_num, right_child_num;	// Πληθος παιδιων απο αριστερα και δεξια
 };
-
 
 // Παρατηρήσεις για τις node_* συναρτήσεις
 // - είναι βοηθητικές (κρυφές από το χρήστη) και υλοποιούν διάφορες λειτουργίες πάνω σε κόμβους του BST.
@@ -41,6 +41,8 @@ static SetNode node_create(Pointer value) {
 	node->left = NULL;
 	node->right = NULL;
 	node->value = value;
+	node->left_child_num = 0;
+	node->right_child_num = 0;
 	return node;
 }
 
@@ -149,10 +151,15 @@ static SetNode node_insert(SetNode node, CompareFunc compare, Pointer value, boo
 	} else if (compare_res < 0) {
 		// value < node->value, συνεχίζουμε αριστερά.
 		node->left = node_insert(node->left, compare, value, inserted, old_value);
-
+		if (*inserted){
+			node->left_child_num++;
+		}
 	} else {
 		// value > node->value, συνεχίζουμε δεξιά
 		node->right = node_insert(node->right, compare, value, inserted, old_value);
+		if (*inserted){
+			node->right_child_num++;
+		}
 	}
 
 	return node;	// η ρίζα του υποδέντρου δεν αλλάζει
@@ -219,10 +226,19 @@ static SetNode node_remove(SetNode node, CompareFunc compare, Pointer value, boo
 	}
 
 	// compare_res != 0, συνεχίζουμε στο αριστερό ή δεξί υποδέντρο, η ρίζα δεν αλλάζει.
-	if (compare_res < 0)
+	if (compare_res < 0){
 		node->left  = node_remove(node->left,  compare, value, removed, old_value);
-	else
+		if (*removed){
+			node->left_child_num--;
+		}
+	}	
+	else{
 		node->right = node_remove(node->right, compare, value, removed, old_value);
+		if (*removed){
+			node->right_child_num--;
+		}
+	}
+		
 
 	return node;
 }
@@ -331,6 +347,99 @@ SetNode set_find_node(Set set, Pointer value) {
 	return node_find_equal(set->root, set->compare, value);
 }
 
+Pointer set_get_at(Set set, int pos){
+	assert(pos >= 0 && pos < set->size);
+
+	int curr = 0;
+
+	SetNode curr_root = set->root;
+
+	int compared;
+
+	do{
+		curr += curr_root->left_child_num;
+
+		compared = set->compare(&curr, &pos);
+		if (compared == 0){
+			return curr_root->value;
+		}
+		else if (compared > 0){
+			curr--;
+			curr_root = curr_root->left;
+			curr -= (curr_root->left_child_num + curr_root->right_child_num);
+		}
+		else{
+			curr++;
+			curr_root = curr_root->right;
+		}
+
+	}while(compared != 0);
+	return NULL;		// Για να μην φωναζει ο compiler
+}
+#include <stdio.h>
+void set_set_at(Set set, int pos, Pointer value){
+	assert(pos >= 0 && pos < set->size);
+
+	int curr = 0;
+
+	SetNode curr_root = set->root;
+
+	int compared;
+	
+	bool reinsert = false;
+
+	do{
+		curr += curr_root->left_child_num;
+
+		compared = set->compare(&curr, &pos);
+		if (compared == 0){
+			
+			if (reinsert == true){
+				set_remove(set, curr_root->value);
+				set_insert(set, value);
+				return;
+			}
+
+			if (curr_root->left != NULL){
+				if (set->compare(curr_root->left->value, value) >= 0){
+					set_remove(set, curr_root->value);
+					set_insert(set, value);
+					return;
+				}
+			}
+
+			if (curr_root->right != NULL){
+				if (set->compare(curr_root->right->value, value) <= 0){
+					set_remove(set, curr_root->value);
+					set_insert(set, value);
+					return;
+				}
+			}
+
+			curr_root->value = value;
+
+		}
+		else if (compared > 0){
+			curr--;
+
+			if (set->compare(curr_root->value, value) <= 0){
+				reinsert = true;
+			}
+			curr_root = curr_root->left;
+			curr -= (curr_root->left_child_num + curr_root->right_child_num);
+		}
+		else{
+			curr++;
+
+			if (set->compare(curr_root->value, value) >= 0){
+				reinsert = true;
+			}
+			curr_root = curr_root->right;
+		}
+		
+	}while(compared != 0);
+
+}
 
 
 // Συναρτήσεις που δεν υπάρχουν στο public interface αλλά χρησιμοποιούνται στα tests.

@@ -85,3 +85,7 @@ Pointer set_node_value(Set set, SetNode node);
 // Επιστρέφει τον κόμβο του στοιχείου, ή SET_EOF αν δεν βρεθεί.
 
 SetNode set_find_node(Set set, Pointer value);
+
+Pointer set_get_at(Set set, int pos);
+
+void set_set_at(Set set, int pos, Pointer value);

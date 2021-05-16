@@ -43,8 +43,23 @@ void test_insert_last(void) {
 }
 
 void test_insert_first(void) {
-	// προς υλοποίηση
-	TEST_ASSERT(false);
+	Deque deque = deque_create(0, NULL);
+	int N = 1000;
+	int* array = malloc(N * sizeof(*array));		// Στο deque θα προσθέσουμε pointers προς τα στοιχεία αυτού του πίνακα
+
+	// insert 1000 στοιχεία ώστε να συμβούν πολλαπλά resizes
+	for (int i = 0; i < 1000; i++) {
+		deque_insert_first(deque, &array[i]);
+		TEST_ASSERT(deque_size(deque) == i+1);		// Το size ενημερώθηκε;
+		TEST_ASSERT(deque_get_at(deque, 0) == &array[i]);	// Μπορούμε να κάνουμε at το στοιχείο που μόλις βάλαμε;
+	}
+
+	// Δοκιμή ότι μετά τα resizes τα στοιχεία είναι ακόμα προσπελάσιμα
+	for (int i = 0; i < 1000; i++)
+		TEST_ASSERT(deque_get_at(deque, i) == &array[999 - i]);
+
+	deque_destroy(deque);
+	free(array);
 }
 
 void test_remove_last(void) {
@@ -68,8 +83,24 @@ void test_remove_last(void) {
 }
 
 void test_remove_first(void) {
-	// προς υλοποίηση
-	TEST_ASSERT(false);
+	Deque deque = deque_create(1000, NULL);
+	int N = 1000;
+	int* array = malloc(N * sizeof(*array));
+
+	// replace για προσθήκη δεδομένων, χωρίς ελέγχους (έχουμε ξεχωριστό test για το replace)
+	for (int i = 0; i < 1000; i++)
+		deque_set_at(deque, i, &array[i]);
+	
+	// Διαδοχικά remove ώστε να συμβούν και resizes
+	for (int i = 0; i < 1000; i++) {
+		
+		TEST_ASSERT(deque_get_at(deque, 0) == &array[i]);
+		deque_remove_first(deque);
+		TEST_ASSERT(deque_size(deque) == 999 - i);
+	}
+
+	deque_destroy(deque);
+	free(array);
 }
 
 void test_get_set_at(void) {
@@ -143,7 +174,6 @@ void test_find(void) {
 	int not_exists = -12;
 	TEST_ASSERT(deque_find(deque, &not_exists, compare_ints) == NULL);
 	TEST_ASSERT(deque_find_node(deque, &not_exists, compare_ints) == DEQUE_EOF);
-
 	deque_destroy(deque);
 	free(array);
 }

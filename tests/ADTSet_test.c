@@ -296,6 +296,112 @@ void test_node_value(void) {
 	free(value_array);
 }
 
+void test_get_at(void){
+
+	Set set = set_create(compare_ints, free);
+
+	int N = 1000;
+	int** value_array = malloc(N * sizeof(*value_array));
+
+	for (int i = 0; i < N; i++) {
+		value_array[i] = create_int(i);
+	}
+	
+	// Δοκιμάζουμε την insert με νέες τιμές κάθε φορά και με αυτόματο free
+	for (int i = 0; i < N; i++) {
+
+		set_insert(set, value_array[i]);
+		
+		TEST_ASSERT(set_size(set) == (i + 1));
+		TEST_ASSERT(*(int*)set_get_at(set, i) == i);
+	}
+
+	for (int i = 0; i < N; i++) {
+		TEST_ASSERT(*(int*)set_get_at(set, i) == i);
+	}
+
+	for (int i = N - 1; i >= 0; i--) {
+		TEST_ASSERT(*(int*)set_get_at(set, i) == i);
+		set_remove(set, value_array[i]);
+	}
+
+	set_destroy(set);
+	free(value_array);
+}
+
+void test_set_at(void){
+
+	Set set = set_create(compare_ints, free);
+
+	set_insert(set, create_int(30));
+    set_insert(set, create_int(15));
+    set_insert(set, create_int(45));
+    set_insert(set, create_int(9));
+    set_insert(set, create_int(25));
+    set_insert(set, create_int(38));
+    set_insert(set, create_int(60));
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+	printf("---\n");
+	printf("Setting at pos 2 which has %d the element 14\n", *(int*)set_get_at(set, 2));
+	set_set_at(set, 2, create_int(14));							// Set at στη ριζα του αριστερου υποδεντρου της ριζας με αλλαγη ταξινομησης. ( Τεσταρουμε αν δουλευει για ΟΧΙ φυλα και ΟΧΙ ριζα)
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+
+	printf("---\n");
+	printf("Setting at pos 5 which has %d the element 39\n", *(int*)set_get_at(set, 5));
+	set_set_at(set, 5, create_int(39));							// Set at στη ριζα του δεξιου υποδεντρου της ριζας χωρις αλλαγη ταξινομησης. ( Τεσταρουμε αν δουλευει για ΟΧΙ φυλα και ΟΧΙ ριζα)
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+
+	printf("---\n");
+	printf("Setting at pos 6 which has %d the element 10\n", *(int*)set_get_at(set, 6));
+	set_set_at(set, 6, create_int(10));							// Set at στο δεξι ακρο (δεξιοτερο φυλλο) του δεντρου με αλλαγη ταξινομησης
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+
+	printf("---\n");
+	printf("Setting at pos 4 which has %d the element 20\n", *(int*)set_get_at(set, 4));		// Set at στη ριζα με αλλαγη ταξινομησης
+	set_set_at(set, 4, create_int(20));
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+
+	printf("---\n");
+	printf("Setting at pos 2 which has %d the element 80\n", *(int*)set_get_at(set, 2));
+	set_set_at(set, 2, create_int(80));							// Set at σε εναν κομβο που εισαγαμε πριν απο Set at με αλλαγη ταξινομησης
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+
+	printf("---\n");
+	printf("Setting at pos 6 which has %d the element 29\n", *(int*)set_get_at(set, 6));
+	set_set_at(set, 6, create_int(29));							// Set at σε εναν κομβο που εισαγαμε πριν απο Set at με αλλαγη ταξινομησης
+
+	printf("Are elements sorted? If yes, then it is correct\n");
+	for (int i = 0 ; i < 7 ; i++){
+		printf("pos %d has %d\n", i, *(int*)set_get_at(set, i));
+	}
+
+    set_destroy(set);
+}
+
 // Λίστα με όλα τα tests προς εκτέλεση
 TEST_LIST = {
 	{ "set_create", 	test_create 	},
@@ -304,5 +410,7 @@ TEST_LIST = {
 	{ "set_find", 		test_find 		},
 	{ "set_iterate",	test_iterate 	},
 	{ "set_node_value",	test_node_value },
+	{ "set_get_at",		test_get_at },
+	{ "set_set_at",		test_set_at },
 	{ NULL, NULL } // τερματίζουμε τη λίστα με NULL
 };
