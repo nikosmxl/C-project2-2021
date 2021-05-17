@@ -416,6 +416,9 @@ void set_set_at(Set set, int pos, Pointer value){
 				}
 			}
 
+			if (set->destroy_value != NULL)
+				set->destroy_value(curr_root->value);
+
 			curr_root->value = value;
 
 		}

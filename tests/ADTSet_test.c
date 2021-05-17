@@ -298,7 +298,7 @@ void test_node_value(void) {
 
 void test_get_at(void){
 
-	Set set = set_create(compare_ints, free);
+	Set set = set_create(compare_ints, NULL);
 
 	int N = 1000;
 	int** value_array = malloc(N * sizeof(*value_array));
@@ -323,6 +323,18 @@ void test_get_at(void){
 	for (int i = N - 1; i >= 0; i--) {
 		TEST_ASSERT(*(int*)set_get_at(set, i) == i);
 		set_remove(set, value_array[i]);
+	}
+
+	set_set_destroy_value(set, free);
+
+	shuffle(value_array, N);
+
+	for (int i = 0; i < N; i++) {
+		set_insert(set, value_array[i]);
+	}
+
+	for (int i = 0; i < N; i++) {
+		TEST_ASSERT(*(int*)set_get_at(set, i) == i);
 	}
 
 	set_destroy(set);
