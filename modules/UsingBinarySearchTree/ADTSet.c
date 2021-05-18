@@ -376,7 +376,7 @@ Pointer set_get_at(Set set, int pos){
 	}while(compared != 0);
 	return NULL;		// Για να μην φωναζει ο compiler
 }
-#include <stdio.h>
+
 void set_set_at(Set set, int pos, Pointer value){
 	assert(pos >= 0 && pos < set->size);
 
@@ -393,7 +393,7 @@ void set_set_at(Set set, int pos, Pointer value){
 
 		compared = set->compare(&curr, &pos);
 		if (compared == 0){
-			
+
 			if (reinsert == true){
 				set_remove(set, curr_root->value);
 				set_insert(set, value);
@@ -401,7 +401,8 @@ void set_set_at(Set set, int pos, Pointer value){
 			}
 
 			if (curr_root->left != NULL){
-				if (set->compare(curr_root->left->value, value) >= 0){
+				//curr_root->left->value
+				if (set->compare(node_find_max(curr_root->left)->value, value) >= 0){
 					set_remove(set, curr_root->value);
 					set_insert(set, value);
 					return;
@@ -409,7 +410,8 @@ void set_set_at(Set set, int pos, Pointer value){
 			}
 
 			if (curr_root->right != NULL){
-				if (set->compare(curr_root->right->value, value) <= 0){
+				//curr_root->right->value
+				if (set->compare(node_find_min(curr_root->right)->value, value) <= 0){
 					set_remove(set, curr_root->value);
 					set_insert(set, value);
 					return;
